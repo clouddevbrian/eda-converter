@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="stylesheet" href="eda.css" type="text/css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu|Lora">
+<head>
+    <title>MediaConvert Tool | CloudDevBrian.com | Event-Driven Architecture Project</title>
+    <style>
+        #fileUpload {
+            margin-bottom: 10px;
+        }
+        #uploadButton {
+            padding: 10px 20px;
+            background-color: #f36d00;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #uploadButton:hover {
+            background-color: #cc6600;
+        }
+    </style>
+</head>
+<body>
+	<center>
+	<h1>CloudDevBrian<strong class="highlight">.</strong>com <strong class="highlight">|
+		<br>MediaConvert Tool</strong></h1>
+	<p><img src="upload.png"></p>
+    <h2><strong class="highlight">Event-Driven Architecture Project</strong></h2>
+    <input type="file" id="fileUpload" />
+    <button id="uploadButton">Upload</button>
+    <div id="message"></div>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.774.0.min.js"></script>
+<script>
+        AWS.config.region = 'us-west-2';
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId: 'us-west-2:0e189794-df1f-4282-a797-33cba7dcbb19'
+        });
+
+        document.getElementById('uploadButton').addEventListener('click', function() {
+            const file = document.getElementById('fileUpload').files[0];
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = '';
+
+            if (!file) {
+                alert('Please choose a file to upload first.');
+                return;
+            }
+
+            const s3 = new AWS.S3({
+                apiVersion: '2006-03-01',
+                params: { Bucket: 'cdb-eda-converter' }
+            });
+
+            const uploadParams = {
+                Bucket: 'cdb-eda-converter',
+                Key: file.name,
+                Body: file,
+                ACL: 'public-read'
+            };
+
+            s3.upload(uploadParams, function(err, data) {
+                if (err) {
+                    console.log('Error', err);
+                    messageDiv.innerHTML = 'There was an error uploading your file: ' + err.message;
+                } else {
+                    console.log('Upload Success', data.Location);
+                    messageDiv.innerHTML = 'Upload Success: <a href="' + data.Location + '" target="_blank">' + data.Location + '</a>';
+                }
+            });
+        });
+    </script>
+	</center>
+</body>
+</html>
