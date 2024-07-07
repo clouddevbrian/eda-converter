@@ -49,11 +49,11 @@
 
             const s3 = new AWS.S3({
                 apiVersion: '2006-03-01',
-                params: { Bucket: 'cdb-eda-converter' }
+                params: { Bucket: 'cdbedaconverterinput5734465567' }
             });
 
             const uploadParams = {
-                Bucket: 'cdb-eda-converter',
+                Bucket: 'cdbedaconverterinput5734465567',
                 Key: file.name,
                 Body: file,
                 ACL: 'public-read'
