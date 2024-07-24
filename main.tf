@@ -11,6 +11,10 @@ resource "aws_s3_bucket_acl" "eda-converter_acl" {
   acl    = "private"
 }
 
+resource "aws_media_convert_queue" "eda-converter" {
+  name = "catqueue"
+}
+
 data "archive_file" "ziplambda" {
   type        = "zip"
   source_file = "${path.module}/lambda/function.py"
@@ -26,46 +30,51 @@ resource "aws_lambda_function" "mediaconverteda" {
   runtime          = "python3.8"
 }
 
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "mediaconverteda-role"
+resource "aws_iam_role" "mediaconvert_role" {
+  name = "MediaConvert_Default_Role"
 
-  assume_role_policy = jsonencode(
-    { "Version" : "2012-10-17",
-      "Statement" : [
-        {
-          "Action" : "sts:AssumeRole",
-          "Principal" : {
-            "Service" : "lambda.amazonaws.com"
-          },
-          "Effect" : "Allow",
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "mediaconvert.amazonaws.com"
         }
-      ]
+        Action = "sts:AssumeRole"
+      }
+    ]
   })
 }
 
-resource "aws_iam_policy" "iam_policy_for_lambda" {
+resource "aws_iam_role" "iam_for_lambda" {
+  name = "iam_for_lambda"
 
-  name        = "crcvisitorcount-policy"
-  path        = "/"
-  description = "AWS IAM Policy for Lambda"
-  policy = jsonencode(
-    {
-      "Version" : "2012-10-17",
-      "Statement" : [
-        {
-          "Action" : [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-          ],
-          "Resource" : "arn:aws:logs:*:*:*",
-          "Effect" : "Allow"
-        },
-      ]
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "attach_iam_policy_to_iam_role" {
+resource "aws_iam_role_policy_attachment" "s3_full_access" {
+  role       = aws_iam_role.mediaconvert_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "apigateway_invoke_full_access" {
+  role       = aws_iam_role.mediaconvert_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonAPIGatewayInvokeFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "mediaconvert_full_access_to_lambda" {
   role       = aws_iam_role.iam_for_lambda.name
-  policy_arn = aws_iam_policy.iam_policy_for_lambda.arn
+  policy_arn = "arn:aws:iam::aws:policy/AWSElementalMediaConvertFullAccess"
 }
