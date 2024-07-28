@@ -32,9 +32,9 @@
     <div id="message"></div>
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.774.0.min.js"></script>
 <script>
-        AWS.config.region = 'us-west-2';
+        AWS.config.region = 'us-east-2';
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-            IdentityPoolId: 'us-west-2:0e189794-df1f-4282-a797-33cba7dcbb19'
+            IdentityPoolId: 'us-east-2:233fd0df-53b7-40e1-9f62-dc57d590a64d'
         });
 
         document.getElementById('uploadButton').addEventListener('click', function() {
@@ -49,11 +49,11 @@
 
             const s3 = new AWS.S3({
                 apiVersion: '2006-03-01',
-                params: { Bucket: 'cdbedaconverterinput5734465567' }
+                params: { Bucket: 'cattube-source1912' }
             });
 
             const uploadParams = {
-                Bucket: 'cdbedaconverterinput5734465567',
+                Bucket: 'cattube-source1912',
                 Key: file.name,
                 Body: file,
                 ACL: 'public-read'

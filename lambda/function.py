@@ -7,7 +7,8 @@ def lambda_handler(event, context):
     mediaconvert = boto3.client('mediaconvert', endpoint_url=f"{mediaconvert_endpoint['Endpoints'][0]['Url']}")
     for message in event['Records']:
 				# REPLACE ME #
-        destination_bucket = 'cdbedaconverteroutput5734465567'
+        destination_bucket = 'cattube-destination1912'
+				##############
         source_bucket = message['s3']['bucket']['name']
         object = message['s3']['object']['key']
         accountid = context.invoked_function_arn.split(":")[4]
